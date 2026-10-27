@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Соня 🦭</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="bg-seals" id="bg-seals"></div>
+
+<main id="app">
+
+  <!-- ============ INTRO ============ -->
+  <section class="screen active" data-screen="intro">
+    <div class="seal seal-hero">
+      <img src="img/seal-cool.png" alt="крутой тюленьчик"
+           onload="this.parentElement.classList.add('has-img')"
+           onerror="this.remove()">
+    </div>
+    <div class="intro-text">Привет, Соня...</div>
+  </section>
+
+  <!-- ============ GREET ============ -->
+  <section class="screen" data-screen="greet">
+    <div class="seal-duo">
+      <div class="seal seal-medium">
+        <img src="img/seal-cute.png" alt="милый тюленьчик"
+             onload="this.parentElement.classList.add('has-img')"
+             onerror="this.remove()">
+      </div>
+      <div class="seal seal-medium">
+        <img src="img/seal-cute2.png" alt="милый тюленьчик 2"
+             onload="this.parentElement.classList.add('has-img')"
+             onerror="this.remove()">
+      </div>
+    </div>
+    <h1 class="h1">Соня, пойдём гулять?</h1>
+    <p class="sub">Тюленьчики очень ждут</p>
+    <div class="btns" id="greet-btns">
+      <button class="btn btn-yes" id="yes-btn">Да</button>
+      <button class="btn btn-no" id="no-btn">Нет</button>
+    </div>
+    <div class="no-reaction hidden" id="no-reaction">
+      <div class="seal seal-hero">
+        <img src="img/seal-crying.png" alt="плачущий тюленьчик"
+             onload="this.parentElement.classList.add('has-img')"
+             onerror="this.remove()">
+      </div>
+      <p class="sub">Тюленьчик расстроился...</p>
+    </div>
+  </section>
+
+  <!-- ============ WHERE ============ -->
+  <section class="screen" data-screen="where">
+    <button class="back-btn" data-back="greet">←</button>
+    <div class="seal seal-medium">
+      <img src="img/seal-thinking.png" alt="задумчивый тюленьчик"
+           onload="this.parentElement.classList.add('has-img')"
+           onerror="this.remove()">
+    </div>
+    <h2 class="h2">Куда пойдём?</h2>
+    <div class="cards">
+      <button class="card" data-where="movie"><span class="card-emoji">🎬</span><span>Кино</span></button>
+      <button class="card" data-where="ice"><span class="card-emoji">⛸️</span><span>Каток</span></button>
+      <button class="card" data-where="theater"><span class="card-emoji">🎭</span><span>Театр</span></button>
+      <button class="card" data-where="custom"><span class="card-emoji">✨</span><span>Свой вариант</span></button>
+    </div>
+  </section>
+
+  <!-- ============ MOVIE ============ -->
+  <section class="screen" data-screen="movie">
+    <button class="back-btn" data-back="where">←</button>
+    <div class="seal seal-medium">
+      <img src="img/seal-happy.png" alt="счастливый тюленьчик"
+           onload="this.parentElement.classList.add('has-img')"
+           onerror="this.remove()">
+    </div>
+    <h2 class="h2">Кино так кино</h2>
+    <div class="form">
+      <div class="field">
+        <label class="label" for="movie-name">На какой фильм хочешь?</label>
+        <input class="input" id="movie-name" type="text" placeholder="Название фильма">
+      </div>
+      <div class="field">
+        <label class="label" for="movie-cinema">В каком кинотеатре?</label>
+        <input class="input" id="movie-cinema" type="text" placeholder="Название или адрес">
+      </div>
+      <p class="hint">Время сеанса выберешь сама на следующем шаге</p>
+      <button class="btn btn-yes btn-block" data-next="notice1">Дальше →</button>
+      <p class="error hidden" data-error-for="movie"></p>
+    </div>
+  </section>
+
+  <!-- ============ THEATER ============ -->
+  <section class="screen" data-screen="theater">
+    <button class="back-btn" data-back="where">←</button>
+    <div class="seal seal-medium">
+      <img src="img/seal-happy2.png" alt="счастливый тюленьчик 2"
+           onload="this.parentElement.classList.add('has-img')"
+           onerror="this.remove()">
+    </div>
+    <h2 class="h2">Театр</h2>
+    <div class="form">
+      <div class="field">
+        <label class="label" for="theater-name">На какой спектакль?</label>
+        <input class="input" id="theater-name" type="text" placeholder="Название">
+      </div>
+      <div class="field">
+        <label class="label" for="theater-place">И где?</label>
+        <input class="input" id="theater-place" type="text" placeholder="Театр или адрес">
+      </div>
+      <p class="hint">Я в театрах вообще не шарю, так что выбор полностью за тобой 🙈</p>
+      <button class="btn btn-yes btn-block" data-next="notice1">Дальше →</button>
+      <p class="error hidden" data-error-for="theater"></p>
+    </div>
+  </section>
+
+  <!-- ============ CUSTOM ============ -->
+  <section class="screen" data-screen="custom">
+    <button class="back-btn" data-back="where">←</button>
+    <div class="seal seal-medium">
+      <img src="img/seal-thinking2.png" alt="задумчивый тюленьчик 2"
+           onload="this.parentElement.classList.add('has-img')"
+           onerror="this.remove()">
+    </div>
+    <h2 class="h2">Свой вариант</h2>
+    <div class="form">
+      <div class="field">
+        <label class="label" for="custom-where">Что придумала?</label>
+        <input class="input" id="custom-where" type="text" placeholder="Расскажи">
+      </div>
+      <button class="btn btn-yes btn-block" data-next="notice1">Дальше →</button>
+      <p class="error hidden" data-error-for="custom"></p>
+    </div>
+  </section>
+
+  <!-- ============ AFTER ICE ============ -->
+  <section class="screen" data-screen="after-ice">
+    <button class="back-btn" data-back="where">←</button>
+    <div class="seal seal-medium">
+      <img src="img/seal-happy.png" alt="счастливый тюленьчик"
+           onload="this.parentElement.classList.add('has-img')"
+           onerror="this.remove()">
+    </div>
+    <h2 class="h2">После катка — куда?</h2>
+    <div class="cards">
+      <button class="card" data-after="park"><span class="card-emoji">🌳</span><span>Парк</span></button>
+      <button class="card" data-after="city"><span class="card-emoji">🏙️</span><span>Гулять по городу</span></button>
+      <button class="card" data-after="food"><span class="card-emoji">🍜</span><span>Кушать</span></button>
+      <button class="card" data-after="custom"><span class="card-emoji">✨</span><span>Свой вариант</span></button>
+    </div>
+    <div class="form">
+      <input class="input hidden" id="after-custom" type="text" placeholder="Куда ещё?">
+      <button class="btn btn-yes btn-block" data-next="notice1">Дальше →</button>
+      <p class="error hidden" data-error-for="after-ice"></p>
+    </div>
+  </section>
+
+  <!-- ============ NOTICE 1 ============ -->
+  <section class="screen" data-screen="notice1">
+    <div class="seal seal-hero">
+      <img src="img/seal-cool.png" alt="крутой тюленьчик"
+           onload="this.parentElement.classList.add('has-img')"
+           onerror="this.remove()">
+    </div>
+    <div class="notice-line notice-small">напоминаю</div>
+    <div class="notice-line notice-big">У МУЖЛАН НЕТ ПРАВ</div>
+  </section>
+
+  <!-- ============ COMPANY ============ -->
+  <section class="screen" data-screen="company">
+    <button class="back-btn" data-back="where">←</button>
+    <div class="seal-duo">
+      <div class="seal seal-medium">
+        <img src="img/seal-thinking.png" alt="задумчивый тюленьчик"
+             onload="this.parentElement.classList.add('has-img')"
+             onerror="this.remove()">
+      </div>
+      <div class="seal seal-medium">
+        <img src="img/seal-cute.png" alt="милый тюленьчик"
+             onload="this.parentElement.classList.add('has-img')"
+             onerror="this.remove()">
+      </div>
+    </div>
+    <h2 class="h2">Вдвоём или позовём кого-то?</h2>
+    <div class="btns btns-col">
+      <button class="btn btn-yes btn-block" data-company="together">Только вдвоём</button>
+      <button class="btn btn-ghost btn-block" data-company="invite">Позовём кого-то</button>
+    </div>
+    <div class="invite-wrap hidden" id="invite-wrap">
+      <p class="hint">Отметь кого позвать</p>
+      <div class="people">
+        <label class="person-check"><input type="checkbox" class="cb" value="Слава"><span class="check-box"></span><span class="person-name">Слава</span></label>
+        <label class="person-check"><input type="checkbox" class="cb" value="Ника"><span class="check-box"></span><span class="person-name">Ника</span></label>
+        <label class="person-check"><input type="checkbox" class="cb" value="Лена"><span class="check-box"></span><span class="person-name">Лена</span></label>
+        <label class="person-check"><input type="checkbox" class="cb" value="Арина"><span class="check-box"></span><span class="person-name">Арина</span></label>
+      </div>
+      <div class="field">
+        <label class="label" for="invite-text">Кого-то ещё?</label>
+        <input class="input" id="invite-text" type="text" placeholder="Имя">
+      </div>
+      <button class="btn btn-yes btn-block" id="invite-next">Дальше →</button>
+      <p class="error hidden" data-error-for="company"></p>
+    </div>
+  </section>
+
+  <!-- ============ NOTICE 2 ============ -->
+  <section class="screen" data-screen="notice2">
+    <div class="notice-big-text">67</div>
+  </section>
+
+  <!-- ============ CALENDAR ============ -->
+  <section class="screen" data-screen="calendar">
+    <button class="back-btn" data-back="company">←</button>
+    <div class="seal seal-medium">
+      <img src="img/seal-cute2.png" alt="милый тюленьчик 2"
+           onload="this.parentElement.classList.add('has-img')"
+           onerror="this.remove()">
+    </div>
+    <h2 class="h2">Когда ты свободна?</h2>
+    <div class="live-clock" id="live-clock">Сейчас: ...</div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <button class="btn btn-yes btn-block" id="cal-next">Дальше →</button>
+    <p class="error hidden" data-error-for="calendar"></p>
+  </section>
+
+  <!-- ============ TIME ============ -->
+  <section class="screen" data-screen="time">
+    <button class="back-btn" data-back="calendar">←</button>
+    <div class="seal seal-medium">
+      <img src="img/seal-cute.png" alt="милый тюленьчик"
+           onload="this.parentElement.classList.add('has-img')"
+           onerror="this.remove()">
+    </div>
+    <h2 class="h2">Во сколько удобно?</h2>
+    <div class="form">
+      <div class="field">
+        <label class="label" for="time-input">Время</label>
+        <input class="input" id="time-input" type="time">
+      </div>
+      <p class="hint" id="date-hint"></p>
+      <button class="btn btn-yes btn-block" id="time-next">Дальше →</button>
+      <p class="error hidden" data-error-for="time"></p>
+    </div>
+  </section>
+
+  <!-- ============ FINAL ============ -->
+  <section class="screen" data-screen="final">
+    <div class="seal-duo">
+      <div class="seal seal-hero">
+        <img src="img/seal-happy.png" alt="счастливый тюленьчик"
+             onload="this.parentElement.classList.add('has-img')"
+             onerror="this.remove()">
+      </div>
+      <div class="seal seal-hero">
+        <img src="img/seal-happy2.png" alt="счастливый тюленьчик 2"
+             onload="this.parentElement.classList.add('has-img')"
+             onerror="this.remove()">
+      </div>
+    </div>
+    <h2 class="h2">Всё, договорились!</h2>
+    <div class="recap" id="recap"></div>
+    <button class="btn btn-yes btn-block" id="final-btn">Готово!</button>
+    <p class="success hidden" id="final-success">Тюленьчики передали всё 🦭</p>
+  </section>
+
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
