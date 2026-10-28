@@ -36,20 +36,34 @@ html, body {
   justify-content: center;
   padding: 70px 24px 40px;
   opacity: 0;
-  transform: translateX(30px) scale(0.985);
+  transform: scale(0.94) translateY(10px);
   pointer-events: none;
   transition:
-    opacity 0.65s var(--ease-smooth),
+    opacity 0.6s var(--ease-smooth),
     transform 0.75s var(--ease-smooth);
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  will-change: opacity, transform;
 }
 .screen.active {
   opacity: 1;
-  transform: translateX(0) scale(1);
+  transform: scale(1) translateY(0);
   pointer-events: auto;
+}
+
+/* Каскадное появление содержимого экрана */
+.screen.active > *:not(.seal):not(.seal-duo):not(.back-btn) {
+  animation: childIn 0.55s var(--ease-smooth) both;
+}
+.screen.active > *:nth-child(2) { animation-delay: 0.04s; }
+.screen.active > *:nth-child(3) { animation-delay: 0.10s; }
+.screen.active > *:nth-child(4) { animation-delay: 0.16s; }
+.screen.active > *:nth-child(5) { animation-delay: 0.22s; }
+.screen.active > *:nth-child(6) { animation-delay: 0.28s; }
+
+@keyframes childIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .back-btn {
@@ -117,6 +131,7 @@ html, body {
   justify-content: center;
   margin-bottom: 16px;
   flex-wrap: nowrap;
+  animation: childIn 0.6s var(--ease-smooth) both;
 }
 .seal-duo .seal { margin-bottom: 0; }
 .seal-duo .seal:nth-child(2) { animation-delay: -1.8s; }
@@ -150,7 +165,6 @@ html, body {
   font-weight: 600;
   color: var(--pink-deep);
   letter-spacing: 0.5px;
-  animation: fadeUp 1s var(--ease-smooth) both;
 }
 .h1 { font-size: 26px; font-weight: 700; text-align: center; margin-bottom: 8px; }
 .h2 { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 20px; }
@@ -184,7 +198,6 @@ html, body {
   font-weight: 800;
   color: var(--pink-deep);
   text-shadow: 0 6px 20px rgba(255, 138, 181, 0.4);
-  animation: fadeIn 0.9s var(--ease-smooth) both;
 }
 
 /* ============ BUTTONS ============ */
@@ -240,7 +253,6 @@ html, body {
   flex-direction: column;
   align-items: center;
   margin-top: 24px;
-  animation: fadeUp 0.8s var(--ease-smooth) both;
 }
 
 /* ============ CARDS ============ */
@@ -284,6 +296,8 @@ html, body {
 }
 .card-emoji { font-size: 32px; }
 
+.card-full { grid-column: 1 / -1; }
+
 /* ============ INPUTS ============ */
 .input {
   width: 100%;
@@ -297,8 +311,7 @@ html, body {
   outline: none;
   transition:
     border-color 0.4s var(--ease-smooth),
-    box-shadow 0.4s var(--ease-smooth),
-    background 0.3s ease;
+    box-shadow 0.4s var(--ease-smooth);
 }
 .input:focus {
   border-color: var(--pink-deep);
@@ -323,7 +336,7 @@ html, body {
   text-align: center;
   margin-top: 14px;
   font-weight: 600;
-  animation: fadeUp 0.7s var(--ease-smooth) both;
+  animation: fadeIn 0.5s var(--ease-smooth) both;
 }
 
 /* ============ INVITE ============ */
@@ -335,7 +348,7 @@ html, body {
   max-width: 360px;
   gap: 12px;
   margin-top: 20px;
-  animation: fadeUp 0.8s var(--ease-smooth) both;
+  animation: childIn 0.6s var(--ease-smooth) both;
 }
 .people {
   display: flex;
@@ -403,7 +416,6 @@ html, body {
   font-size: 15px;
   font-weight: 600;
   color: var(--text);
-  transition: color 0.35s var(--ease-smooth);
 }
 
 /* ============ CLOCK ============ */
@@ -415,7 +427,6 @@ html, body {
   padding: 8px 16px;
   border-radius: 999px;
   margin-bottom: 14px;
-  transition: background 0.4s ease;
 }
 
 /* ============ CALENDAR ============ */
@@ -473,11 +484,47 @@ html, body {
   margin: 8px 0 18px;
   font-size: 15px;
   line-height: 1.7;
-  animation: fadeUp 0.8s var(--ease-smooth) both;
 }
 .recap-row { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; }
 .recap-row span:first-child { color: #a8798d; }
 .recap-row span:last-child { font-weight: 600; text-align: right; }
+
+/* ============ APPROVAL TOAST ============ */
+.approval-toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.85);
+  opacity: 0;
+  pointer-events: none;
+  background: #fff;
+  padding: 14px 22px;
+  border-radius: 22px;
+  box-shadow: 0 14px 40px rgba(255, 138, 181, 0.45);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 100;
+  transition:
+    opacity 0.35s var(--ease-smooth),
+    transform 0.5s var(--ease-spring);
+  white-space: nowrap;
+  max-width: calc(100vw - 40px);
+}
+.approval-toast.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+.approval-icon {
+  font-size: 24px;
+  animation: bob 1.8s ease-in-out infinite;
+  display: inline-block;
+}
+.approval-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #7a5a6a;
+}
 
 /* ============ BG ============ */
 .bg-seals {
@@ -491,7 +538,6 @@ html, body {
   position: absolute;
   opacity: 0.28;
   animation: drift 16s ease-in-out infinite alternate;
-  will-change: transform, opacity;
 }
 .float-seal svg { width: 100%; height: 100%; display: block; }
 
@@ -503,10 +549,6 @@ html, body {
 @keyframes bob {
   0%, 100% { transform: translate3d(0, 0, 0) rotate(-1.2deg); }
   50%      { transform: translate3d(0, -8px, 0) rotate(1.2deg); }
-}
-@keyframes fadeUp {
-  from { opacity: 0; transform: translate3d(0, 18px, 0); }
-  to   { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -522,6 +564,7 @@ html, body {
   .seal-hero   { width: 180px; height: 180px; }
   .seal-medium { width: 130px; height: 130px; }
   .seal-small  { width: 90px;  height: 90px; }
+  .approval-text { font-size: 13px; }
 }
 
 /* ============ Уважение к «уменьшению движения» ============ */
