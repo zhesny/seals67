@@ -88,7 +88,7 @@
         <input class="input" id="movie-cinema" type="text" placeholder="Название или адрес">
       </div>
       <p class="hint">Время сеанса выберешь сама на следующем шаге</p>
-      <button class="btn btn-yes btn-block" data-next="notice1">Дальше →</button>
+      <button class="btn btn-yes btn-block" data-next="after">Дальше →</button>
       <p class="error hidden" data-error-for="movie"></p>
     </div>
   </section>
@@ -112,7 +112,7 @@
         <input class="input" id="theater-place" type="text" placeholder="Театр или адрес">
       </div>
       <p class="hint">Я в театрах вообще не шарю, так что выбор полностью за тобой 🙈</p>
-      <button class="btn btn-yes btn-block" data-next="notice1">Дальше →</button>
+      <button class="btn btn-yes btn-block" data-next="after">Дальше →</button>
       <p class="error hidden" data-error-for="theater"></p>
     </div>
   </section>
@@ -136,25 +136,26 @@
     </div>
   </section>
 
-  <!-- ============ AFTER ICE ============ -->
-  <section class="screen" data-screen="after-ice">
+  <!-- ============ AFTER (общий для кино / катка / театра) ============ -->
+  <section class="screen" data-screen="after">
     <button class="back-btn" data-back="where">←</button>
     <div class="seal seal-medium">
       <img src="img/seal-happy.png" alt="счастливый тюленьчик"
            onload="this.parentElement.classList.add('has-img')"
            onerror="this.remove()">
     </div>
-    <h2 class="h2">После катка — куда?</h2>
-    <div class="cards">
+    <h2 class="h2" id="after-title">Куда потом?</h2>
+    <div class="cards cards-5">
       <button class="card" data-after="park"><span class="card-emoji">🌳</span><span>Парк</span></button>
       <button class="card" data-after="city"><span class="card-emoji">🏙️</span><span>Гулять по городу</span></button>
+      <button class="card" data-after="river"><span class="card-emoji">🌊</span><span>Набережная</span></button>
       <button class="card" data-after="food"><span class="card-emoji">🍜</span><span>Кушать</span></button>
-      <button class="card" data-after="custom"><span class="card-emoji">✨</span><span>Свой вариант</span></button>
+      <button class="card card-full" data-after="custom"><span class="card-emoji">✨</span><span>Свой вариант</span></button>
     </div>
     <div class="form">
       <input class="input hidden" id="after-custom" type="text" placeholder="Куда ещё?">
       <button class="btn btn-yes btn-block" data-next="notice1">Дальше →</button>
-      <p class="error hidden" data-error-for="after-ice"></p>
+      <p class="error hidden" data-error-for="after"></p>
     </div>
   </section>
 
@@ -246,6 +247,25 @@
     </div>
   </section>
 
+  <!-- ============ WISHES ============ -->
+  <section class="screen" data-screen="wishes">
+    <button class="back-btn" data-back="time">←</button>
+    <div class="seal seal-medium">
+      <img src="img/seal-thinking2.png" alt="задумчивый тюленьчик 2"
+           onload="this.parentElement.classList.add('has-img')"
+           onerror="this.remove()">
+    </div>
+    <h2 class="h2">Есть пожелания?</h2>
+    <p class="hint">Необязательно. Если что-то важное — напиши, я учту</p>
+    <div class="form">
+      <div class="field">
+        <label class="label" for="wishes-input">Что стоит учесть?</label>
+        <input class="input" id="wishes-input" type="text" placeholder="Например, я не люблю громкие места">
+      </div>
+      <button class="btn btn-yes btn-block" id="wishes-next">Дальше →</button>
+    </div>
+  </section>
+
   <!-- ============ FINAL ============ -->
   <section class="screen" data-screen="final">
     <div class="seal-duo">
@@ -262,12 +282,23 @@
     </div>
     <h2 class="h2">Всё, договорились!</h2>
     <div class="recap" id="recap"></div>
-    <button class="btn btn-yes btn-block" id="final-btn">Готово!</button>
+    <div class="btns btns-col">
+      <button class="btn btn-yes btn-block" id="final-btn">Готово!</button>
+      <button class="btn btn-ghost btn-block" id="download-btn">Сохранить как фото 📸</button>
+    </div>
     <p class="success hidden" id="final-success">Тюленьчики передали всё 🦭</p>
+    <p class="error hidden" data-error-for="final"></p>
   </section>
 
 </main>
 
+<!-- ============ TOAST ============ -->
+<div class="approval-toast" id="approval-toast">
+  <div class="approval-icon">🦭</div>
+  <div class="approval-text">тюленьчик одобряет твой выбор</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
