@@ -10,13 +10,14 @@ const state = {
   theaterName: '',
   theaterPlace: '',
   customWhere: '',
-  afterIce: null,
-  afterIceCustom: '',
+  after: null,
+  afterCustom: '',
   company: null,
   invitePeople: [],
   inviteText: '',
   date: '',
   time: '',
+  wishes: '',
 };
 
 // ================= SVG FALLBACK =================
@@ -95,7 +96,43 @@ function showError(key, msg) {
   el.textContent = msg;
   el.classList.remove('hidden');
   clearTimeout(el._t);
-  el._t = setTimeout(() => el.classList.add('hidden'), 3000);
+  el._t = setTimeout(() => el.classList.add('hidden'), 3500);
+}
+
+function flashTo(noticeName, duration, targetName) {
+  showScreen(noticeName);
+  setTimeout(() => showScreen(targetName), duration);
+}
+
+// ================= APPROVAL TOAST =================
+function showApproval(callback) {
+  const toast = document.getElementById('approval-toast');
+  toast.classList.add('show');
+  setTimeout(() => {
+    toast.classList.remove('show');
+    if (callback) setTimeout(callback, 280);
+  }, 800);
+}
+
+// ================= AFTER: единый экран для кино / катка / театра =================
+function goToAfter(fromScreen) {
+  const titles = {
+    ice:     'После катка — куда?',
+    movie:   'После кино — куда?',
+    theater: 'После театра — куда?',
+  };
+  const screen = document.querySelector('[data-screen="after"]');
+  screen.querySelector('#after-title').textContent = titles[state.where] || 'Куда потом?';
+  screen.querySelector('.back-btn').dataset.back = fromScreen;
+
+  state.after = null;
+  state.afterCustom = '';
+  const customInput = screen.querySelector('#after-custom');
+  customInput.value = '';
+  customInput.classList.add('hidden');
+  screen.querySelectorAll('.card[data-after]').forEach(c => c.classList.remove('selected'));
+
+  showScreen('after');
 }
 
 // ================= INIT =================
@@ -108,10 +145,11 @@ document.addEventListener('DOMContentLoaded', () => {
   wireIntro();
   wireGreet();
   wireWhere();
-  wireAfterIce();
+  wireAfter();
   wireCompany();
   wireCalendarNext();
   wireTimeNext();
+  wireWishes();
   wireFinal();
   wirePersonChecks();
 });
@@ -157,15 +195,19 @@ function wireWhere() {
       state.where = w;
       const names = { movie: 'Кино', ice: 'Каток', theater: 'Театр', custom: 'Свой вариант' };
       sendTG(`🗺 Соня выбрала: <b>${names[w]}</b>`);
-      if (w === 'movie') showScreen('movie');
-      else if (w === 'theater') showScreen('theater');
-      else if (w === 'custom') showScreen('custom');
-      else if (w === 'ice') showScreen('after-ice');
+
+      showApproval(() => {
+        if (w === 'ice') goToAfter('where');
+        else if (w === 'movie') showScreen('movie');
+        else if (w === 'theater') showScreen('theater');
+        else if (w === 'custom') showScreen('custom');
+      });
     });
   });
 
-  ['movie', 'theater', 'custom'].forEach(screenName => {
-    const btn = document.querySelector(`[data-screen="${screenName}"] [data-next="notice1"]`);
+  // Кино / Театр → после формы → экран "after"
+  ['movie', 'theater'].forEach(screenName => {
+    const btn = document.querySelector(`[data-screen="${screenName}"] [data-next="after"]`);
     if (!btn) return;
     btn.addEventListener('click', () => {
       if (screenName === 'movie') {
@@ -173,47 +215,58 @@ function wireWhere() {
         state.movieCinema = document.getElementById('movie-cinema').value.trim();
         if (!state.movieName) return showError('movie', 'Напиши на какой фильм хочешь');
         sendTG(`🎬 Кино: <b>${state.movieName}</b>\n🏛 Кинотеатр: <b>${state.movieCinema || '—'}</b>`);
+        goToAfter('movie');
       } else if (screenName === 'theater') {
         state.theaterName = document.getElementById('theater-name').value.trim();
         state.theaterPlace = document.getElementById('theater-place').value.trim();
         if (!state.theaterName) return showError('theater', 'Напиши на какой спектакль хочешь');
         sendTG(`🎭 Театр: <b>${state.theaterName}</b>\n📍 Где: <b>${state.theaterPlace || '—'}</b>`);
-      } else if (screenName === 'custom') {
-        state.customWhere = document.getElementById('custom-where').value.trim();
-        if (!state.customWhere) return showError('custom', 'Напиши свой вариант');
-        sendTG(`✨ Свой вариант: <b>${state.customWhere}</b>`);
+        goToAfter('theater');
       }
-      flashTo('notice1', 1800, 'company');
     });
   });
+
+  // Свой вариант → сразу к компании через флеш
+  const customBtn = document.querySelector('[data-screen="custom"] [data-next="notice1"]');
+  if (customBtn) {
+    customBtn.addEventListener('click', () => {
+      state.customWhere = document.getElementById('custom-where').value.trim();
+      if (!state.customWhere) return showError('custom', 'Напиши свой вариант');
+      sendTG(`✨ Свой вариант: <b>${state.customWhere}</b>`);
+      flashTo('notice1', 1800, 'company');
+    });
+  }
 }
 
-// ================= AFTER ICE =================
-function wireAfterIce() {
+// ================= AFTER =================
+function wireAfter() {
   const afterCustom = document.getElementById('after-custom');
 
   document.querySelectorAll('.card[data-after]').forEach(card => {
     card.addEventListener('click', () => {
       document.querySelectorAll('.card[data-after]').forEach(c => c.classList.remove('selected'));
       card.classList.add('selected');
-      state.afterIce = card.dataset.after;
+      state.after = card.dataset.after;
 
       if (card.dataset.after === 'custom') {
         afterCustom.classList.remove('hidden');
       } else {
         afterCustom.classList.add('hidden');
-        const names = { park: 'Парк', city: 'Гулять по городу', food: 'Кушать' };
-        sendTG(`⛸️ После катка: <b>${names[card.dataset.after]}</b>`);
+        const names = { park: 'Парк', city: 'Гулять по городу', river: 'Набережная', food: 'Кушать' };
+        sendTG(`➡️ После: <b>${names[card.dataset.after]}</b>`);
       }
+
+      // Тихое одобрение без задержки перехода
+      showApproval();
     });
   });
 
-  document.querySelector('[data-screen="after-ice"] [data-next="notice1"]').addEventListener('click', () => {
-    if (!state.afterIce) return showError('after-ice', 'Выбери куда пойдём после катка');
-    if (state.afterIce === 'custom') {
-      state.afterIceCustom = afterCustom.value.trim();
-      if (!state.afterIceCustom) return showError('after-ice', 'Напиши свой вариант');
-      sendTG(`⛸️ После катка: <b>${state.afterIceCustom}</b>`);
+  document.querySelector('[data-screen="after"] [data-next="notice1"]').addEventListener('click', () => {
+    if (!state.after) return showError('after', 'Выбери куда пойдём после');
+    if (state.after === 'custom') {
+      state.afterCustom = afterCustom.value.trim();
+      if (!state.afterCustom) return showError('after', 'Напиши свой вариант');
+      sendTG(`➡️ После: <b>${state.afterCustom}</b>`);
     }
     flashTo('notice1', 1800, 'company');
   });
@@ -256,12 +309,6 @@ function wirePersonChecks() {
   });
 }
 
-// ================= FLASH =================
-function flashTo(noticeName, duration, targetName) {
-  showScreen(noticeName);
-  setTimeout(() => showScreen(targetName), duration);
-}
-
 // ================= CALENDAR (30 октября → 30 ноября) =================
 function buildCalendar() {
   const grid = document.getElementById('cal-grid');
@@ -270,8 +317,8 @@ function buildCalendar() {
   const weekdays = ['вс','пн','вт','ср','чт','пт','сб'];
 
   const year = new Date().getFullYear();
-  const start = new Date(year, 9, 30);   // 30 октября (месяц 9 = октябрь)
-  const end   = new Date(year, 10, 30);  // 30 ноября (месяц 10 = ноябрь)
+  const start = new Date(year, 9, 30);
+  const end   = new Date(year, 10, 30);
 
   for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const date = new Date(d);
@@ -304,6 +351,16 @@ function wireTimeNext() {
     if (!t) return showError('time', 'Выбери время');
     state.time = t;
     sendTG(`⏰ Время: <b>${t}</b>`);
+    showScreen('wishes');
+  });
+}
+
+// ================= WISHES =================
+function wireWishes() {
+  document.getElementById('wishes-next').addEventListener('click', () => {
+    const w = document.getElementById('wishes-input').value.trim();
+    state.wishes = w;
+    if (w) sendTG(`💭 Пожелания: <b>${w}</b>`);
     buildRecap();
     showScreen('final');
   });
@@ -328,7 +385,7 @@ function startClock() {
 function buildRecap() {
   const r = document.getElementById('recap');
   const whereNames = { movie: 'Кино', ice: 'Каток', theater: 'Театр', custom: 'Свой вариант' };
-  const afterNames = { park: 'Парк', city: 'Гулять по городу', food: 'Кушать', custom: state.afterIceCustom };
+  const afterNames = { park: 'Парк', city: 'Гулять по городу', river: 'Набережная', food: 'Кушать', custom: state.afterCustom };
   const rows = [];
   rows.push(['Куда', whereNames[state.where] || '—']);
   if (state.where === 'movie') {
@@ -339,17 +396,18 @@ function buildRecap() {
     rows.push(['Где', state.theaterPlace || '—']);
   } else if (state.where === 'custom') {
     rows.push(['Куда', state.customWhere || '—']);
-  } else if (state.where === 'ice') {
-    rows.push(['После катка', afterNames[state.afterIce] || '—']);
   }
+  if (state.after) rows.push(['После', afterNames[state.after] || '—']);
   const inviteList = [...state.invitePeople];
   if (state.inviteText) inviteList.push(state.inviteText);
   rows.push(['Компания', state.company === 'together' ? 'Вдвоём' : `Позовём: ${inviteList.join(', ') || '—'}`]);
   rows.push(['Дата', state.date || '—']);
   rows.push(['Время', state.time || '—']);
+  if (state.wishes) rows.push(['Пожелания', state.wishes]);
   r.innerHTML = rows.map(([k, v]) => `<div class="recap-row"><span>${k}</span><span>${v}</span></div>`).join('');
 }
 
+// ================= FINAL =================
 function wireFinal() {
   document.getElementById('final-btn').addEventListener('click', () => {
     const full = `🦭 <b>ПОЛНЫЙ ОТЧЁТ — СОНЯ</b>\n\n` +
@@ -359,13 +417,112 @@ function wireFinal() {
       (state.theaterName ? `Спектакль: ${state.theaterName}\n` : '') +
       (state.theaterPlace ? `Где: ${state.theaterPlace}\n` : '') +
       (state.customWhere ? `Свой вариант: ${state.customWhere}\n` : '') +
-      (state.afterIce    ? `После катка: ${state.afterIce === 'custom' ? state.afterIceCustom : state.afterIce}\n` : '') +
+      (state.after       ? `После: ${state.after === 'custom' ? state.afterCustom : state.after}\n` : '') +
       `Компания: ${state.company}` +
       (state.invitePeople.length ? ` — ${state.invitePeople.join(', ')}` : '') +
       (state.inviteText ? ` + ${state.inviteText}` : '') + `\n` +
-      `Дата: ${state.date}\nВремя: ${state.time}`;
+      `Дата: ${state.date}\nВремя: ${state.time}` +
+      (state.wishes ? `\nПожелания: ${state.wishes}` : '');
     sendTG(full);
     document.getElementById('final-btn').style.display = 'none';
     document.getElementById('final-success').classList.remove('hidden');
   });
+
+  document.getElementById('download-btn').addEventListener('click', downloadRecap);
+}
+
+// ================= DOWNLOAD AS IMAGE =================
+async function downloadRecap() {
+  if (typeof html2canvas === 'undefined') {
+    return showError('final', 'Библиотека не загрузилась, проверь интернет');
+  }
+
+  const PADDING = 38;
+
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: -9999px;
+    padding: ${PADDING}px;
+    background: linear-gradient(135deg, #ffe0ec 0%, #ffd0e2 50%, #ffc8dc 100%);
+    font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+    box-sizing: border-box;
+  `;
+
+  const card = document.createElement('div');
+  card.style.cssText = `
+    width: 340px;
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 22px 22px 18px;
+    box-sizing: border-box;
+    text-align: center;
+    color: #2d2d2d;
+  `;
+
+  const sealImg = document.createElement('img');
+  const sealLoaded = new Promise(resolve => {
+    sealImg.onload  = () => resolve(true);
+    sealImg.onerror = () => resolve(false);
+  });
+  sealImg.src = 'img/seal-happy.png';
+  sealImg.style.cssText = `
+    width: 110px; height: 110px; object-fit: contain;
+    display: block; margin: 0 auto 10px;
+  `;
+  card.appendChild(sealImg);
+
+  const heading = document.createElement('div');
+  heading.textContent = 'Всё, договорились!';
+  heading.style.cssText = 'font-size: 22px; font-weight: 700; margin-bottom: 14px;';
+  card.appendChild(heading);
+
+  document.querySelectorAll('#recap .recap-row').forEach(row => {
+    const key = row.children[0].textContent;
+    const val = row.children[1].textContent;
+    const rowEl = document.createElement('div');
+    rowEl.style.cssText = `
+      display: flex; justify-content: space-between;
+      gap: 10px; padding: 5px 0;
+      font-size: 15px; line-height: 1.5;
+    `;
+    const kEl = document.createElement('span');
+    kEl.textContent = key;
+    kEl.style.color = '#a8798d';
+    const vEl = document.createElement('span');
+    vEl.textContent = val;
+    vEl.style.cssText = 'font-weight: 600; text-align: right;';
+    rowEl.appendChild(kEl);
+    rowEl.appendChild(vEl);
+    card.appendChild(rowEl);
+  });
+
+  wrapper.appendChild(card);
+  document.body.appendChild(wrapper);
+
+  try {
+    const imgOk = await sealLoaded;
+    if (!imgOk) sealImg.remove();
+
+    await new Promise(r => setTimeout(r, 120));
+
+    const canvas = await html2canvas(wrapper, {
+      backgroundColor: null,
+      scale: 2,
+      logging: false,
+      useCORS: true,
+    });
+
+    const datePart = state.date ? state.date.replace(/\s+/g, '-') : 'встреча';
+    const link = document.createElement('a');
+    link.download = `соня-${datePart}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch (e) {
+    console.error('download error:', e);
+    showError('final', 'Не получилось сохранить, попробуй ещё раз');
+  } finally {
+    wrapper.remove();
+  }
 }
